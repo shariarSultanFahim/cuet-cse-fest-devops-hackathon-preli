@@ -17,7 +17,24 @@ services:
       - mongo
     restart: on-failure
 
-  # gateway:
+  gateway:
+    build:
+      context: ../gateway
+      dockerfile: Dockerfile
+    container_name: prod_gateway
+    env_file:
+      - ../.env
+    environment:
+      - BACKEND_URL=http://backend:${BACKEND_PORT}
+      - GATEWAY_PORT=${GATEWAY_PORT}
+      - NODE_ENV=production
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    networks:
+      - private_network
+    depends_on:
+      - backend
+    restart: always
 
   mongo:
     image: mongo:6.0

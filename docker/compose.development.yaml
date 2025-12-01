@@ -1,6 +1,45 @@
-# services:
-  # backend:
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.dev
+    container_name: devops_hackathon_backend
+    env_file:
+      - ../.env
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - NODE_ENV=development
+    volumes:
+      - ../backend/src:/app/src
+      - /app/node_modules
+    networks:
+      - app_network
+    depends_on:
+      - mongo
+    expose:
+      - "${BACKEND_PORT}"
 
   # gateway:
 
-  # mongo:
+  mongo:
+    image: mongo:6.0
+    container_name: devops_hackathon_mongo
+    env_file:
+      - ../.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app_network
+    restart: always
+
+volumes:
+  mongo_data:
+
+networks:
+  app_network:
+    driver: bridge

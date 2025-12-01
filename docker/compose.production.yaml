@@ -1,6 +1,42 @@
-# services:
-  # backend:
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: prod_backend
+    env_file:
+      - ../.env
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - NODE_ENV=production
+    networks:
+      - private_network
+    depends_on:
+      - mongo
+    restart: on-failure
 
   # gateway:
 
-  # mongo:
+  mongo:
+    image: mongo:6.0
+    container_name: prod_mongo
+    env_file:
+      - ../.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongo_prod_data:/data/db
+    networks:
+      - private_network
+    restart: always
+
+
+networks:
+  private_network:
+    driver: bridge
+
+volumes:
+  mongo_prod_data:

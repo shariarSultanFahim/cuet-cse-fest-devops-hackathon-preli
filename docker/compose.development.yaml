@@ -21,7 +21,25 @@ services:
     expose:
       - "${BACKEND_PORT}"
 
-  # gateway:
+  gateway:
+    build:
+      context: ../gateway
+      dockerfile: Dockerfile.dev
+    container_name: devops_hackathon_gateway
+    env_file:
+      - ../.env
+    environment:
+      - BACKEND_URL=http://backend:${BACKEND_PORT}
+      - GATEWAY_PORT=${GATEWAY_PORT}
+    volumes:
+      - ../gateway/src:/app/src
+      - /app/node_modules
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+    networks:
+      - app_network
+    depends_on:
+      - backend
 
   mongo:
     image: mongo:6.0
